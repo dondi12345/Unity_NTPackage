@@ -6,71 +6,83 @@ using NTPackage.Functions;
 using DG.Tweening;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using NTFunctions;
 
-namespace NTPackage.UI{
-    public class NTButtonEffect : NTBehaviour, IPointerDownHandler, IPointerUpHandler
+namespace NTPackage.UI
+{
+    public class NTButtonEffect : LoadBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         public Vector3 SizeUp = new Vector3(1.05f, 1.05f, 1.05f);
         public Vector3 SizeDown = new Vector3(0.95f, 0.95f, 0.95f);
         public Transform Main;
 
-        public Transform Light;  
-        public Transform Dark;  
+        public Transform Light;
+        public Transform Dark;
 
         public UnityEvent Onclick;
         public UnityEvent Onhold;
 
-        public bool IsClick = false;
-        public bool IsHold = false;
+        private bool IsClick = false;
+        private bool IsHold = false;
 
-        public Vector2 MouseDownPos;
+        private Vector2 MouseDownPos;
 
         public Coroutine HoldCor;
-        public bool IsIn = false;
+        private bool IsIn = false;
 
-        public void OnPointerDown(PointerEventData eventData){
+        public void OnPointerDown(PointerEventData eventData)
+        {
             this.IsClick = true;
             this.IsHold = false;
             this.MouseDownPos = Input.mousePosition;
-            if(this.Main == null) this.Main = transform.parent;
-            this.Main.DOComplete();
+            if (this.HoldCor != null) StopCoroutine(this.HoldCor);
+            this.HoldCor = StartCoroutine(this.Holding());
+            if (this.Main == null) return;
             this.Main.DOScale(this.SizeDown, 0.1f);
-            StartCoroutine(this.Holding());
         }
 
-        IEnumerator Holding(){
+        IEnumerator Holding()
+        {
             this.IsHold = true;
-            yield return new WaitForSeconds(0.75f);
-            if(this.IsClick && this.IsHold){
+            yield return new WaitForSeconds(0.5f);
+            if (this.IsClick && this.IsHold)
+            {
+                CheckIn();
                 this.IsClick = false;
                 this.IsHold = false;
-                CheckIn();
                 if (this.IsIn) this.Onhold.Invoke();
             }
         }
-        
-        public void OnPointerUp(PointerEventData eventData){
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
             CheckIn();
-            if(this.Main == null) this.Main = transform.parent;
-            this.Main.DOComplete();
-            this.Main.DOScale(this.SizeUp, 0.1f).OnComplete(()=>{
-                this.Main.DOScale(new Vector3(1f,1f,1f), 0.05f);
-                if(this.IsClick){
+            if (this.HoldCor != null) StopCoroutine(this.HoldCor);
+            if (this.Main == null) return;
+            this.Main.DOScale(this.SizeUp, 0.1f).OnComplete(() =>
+            {
+                this.Main.DOScale(new Vector3(1f, 1f, 1f), 0.05f);
+                if (this.IsClick)
+                {
                     this.IsClick = false;
                     this.IsHold = false;
                     if (this.IsIn) this.Onclick.Invoke();
                 }
             });
         }
-    
-        public void Chose(){
-            if(this.Light != null && this.Dark != null){
+
+        public virtual void Chose()
+        {
+            if (this.Light != null && this.Dark != null)
+            {
                 this.Light.gameObject.SetActive(true);
                 this.Dark.gameObject.SetActive(false);
             }
         }
-        public void UnChose(){
-            if(this.Light != null && this.Dark != null){
+        public virtual void UnChose()
+        {
+            if (this.Light != null && this.Dark != null)
+            {
                 this.Dark.gameObject.SetActive(true);
                 this.Light.gameObject.SetActive(false);
             }

@@ -4,42 +4,32 @@ using UnityEngine;
 
 namespace NTPackage{
     [System.Serializable]
-    public class NTDictionary<K, V>{
-        public Dictionary<K, V> Dictionary = new Dictionary<K, V>();
-        //#if UNITY_EDITOR
-            public List<K> Keys = new List<K>();
-            public List<V> Values = new List<V>();
-        //#endif
+    public class NTDictionary<T>{
+        public Dictionary<string, T> Dictionary = new Dictionary<string, T>();
+        [SerializeField]
+        private List<string> Keys = new List<string>();
+        [SerializeField]
+        private List<T> Values = new List<T>();
 
         public void Clear(){
-            // NTPackage.Functions.NTLog.LogMessage("NTDictionany Clear", null);
             this.Dictionary.Clear();
-            //#if UNITY_EDITOR
+            #if UNITY_EDITOR
                 this.Keys.Clear();
                 this.Values.Clear();
-            //#endif
-        }
-        
-        public void Add(K key,V value){
-            this.Dictionary[key] = value;
-            //#if UNITY_EDITOR
-                K key_1 = this.Keys.Find((respone)=>(respone.Equals(key)));
-                if(key_1 != null){
-                    int index = this.Keys.IndexOf(key_1);
-                    try
-                    {
-                        this.Values[index] = value;
-                    }
-                    catch (System.Exception)
-                    {}
-                    return;
-                }
-                this.Keys.Add(key);
-                this.Values.Add(value);
-            //#endif
+            #endif
         }
 
-        public V Get(K key)
+        public void Add(string key,T value){
+            this.Dictionary[key] = value;
+            #if UNITY_EDITOR
+                string key_1 = this.Keys.Find((respone)=>(respone.Equals(key)));
+                if(key_1 != null) return;
+                this.Keys.Add(key);
+                this.Values.Add(value);
+            #endif
+        }
+
+        public T Get(string key)
         {
             try
             {
@@ -47,22 +37,28 @@ namespace NTPackage{
             }
             catch (System.Exception)
             {
-                return default(V);
+                return default(T);
             }
         }
 
-        public void Remove(K key){
+        public void Remove(string key){
             this.Dictionary.Remove(key);
         }
 
-        public List<V> ToList(){
-            List<V> list = new List<V>();
-            foreach (KeyValuePair<K,V> item in this.Dictionary)
+        public List<T> ToList(){
+            List<T> list = new List<T>();
+            foreach (KeyValuePair<string,T> item in this.Dictionary)
             {
                 list.Add(item.Value);
             }
             return list;
         }
-    }
+
+        public int Count{
+            get {
+                return this.Dictionary.Count;
+            }
+        }
+    } 
  
  }

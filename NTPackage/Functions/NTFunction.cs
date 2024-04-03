@@ -35,6 +35,11 @@ namespace NTPackage.Functions{
             trans.localScale = new Vector3(1,1,1);
         }
 
+        public static IEnumerator WaitTimeForSecond(float second, Action<object> action, object data = null){
+            yield return new WaitForSeconds(second);
+            action?.Invoke(data);
+        }
+
         public static string FormatNumber(double num)
         {
             string[] suffix = {"", "K", "M", "B", "T", "Q"};
@@ -47,20 +52,32 @@ namespace NTPackage.Functions{
             return $"{num:G3}{suffix[index]}";
         }
 
-        public static int GetCurrentDateNumber(){
+        //100,000
+        public static string FormatNumberWithCommas(int number)
+        {
+            return string.Format("{0:n0}", number);
+        }
+
+        // 20241503
+        public static int GetCurrentDateNumber()
+        {
             DateTime date = DateTime.Now;
-            int number = date.Year* 10000;
+            return GetDateNumber(date);
+        }
+
+        // 20241503
+        public static int GetDateNumber(DateTime date)
+        {
+            int number = date.Year * 10000;
             number += date.Month * 100;
             number += date.Day;
+            Debug.Log(number);
             return number;
         }
 
-        public static string GetCurrentFomatDate(){
-            DateTime date = DateTime.Now;
-            int dd = date.Day;
-            int mm = date.Month;
-            int yy = date.Year;
-            return dd+"/"+mm+"/"+yy;
+        public static bool IsNewDay(DateTime date){
+            if(GetDateNumber(date) < GetCurrentDateNumber()) return true;
+            return false;
         }
         
         //Math
@@ -96,6 +113,7 @@ namespace NTPackage.Functions{
             }
             return hour+":"+min+":"+sec;
         }
+
         public static string FormatTimeMinus(float time){
             int second = (int)time;
             int minus = second/60;
@@ -149,11 +167,6 @@ namespace NTPackage.Functions{
             return objectIdString;
         }
 
-        public static IEnumerator WaiteSecond(float time, Action callback){
-            yield return new WaitForSeconds(time);
-            callback.Invoke();
-        }
-
         //Enum
         public static T ParseEnumFromString<T>(string name){
             try
@@ -164,6 +177,25 @@ namespace NTPackage.Functions{
             {
                 return default;
             }
+        }
+
+        public static string CollapString(string value, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength) +"...";
+        }
+
+        public static Vector3 GetRandomRange(Vector3 center, float rangeMetter){
+            // Set center position of circle
+            float range = rangeMetter;
+
+            // Generate random position in circle
+            float angle = UnityEngine.Random.Range(0, 360);
+            float radius = UnityEngine.Random.Range(50, range);
+            Vector3 randomPosition = center + Quaternion.Euler(0, angle, 0) * Vector3.forward * radius;
+
+            // Add vertical displacement
+            return randomPosition;
         }
     }
 }
