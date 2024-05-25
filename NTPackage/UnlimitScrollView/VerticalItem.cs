@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace NTFunctions
+namespace NTPackage.Functions
 {
     public class VerticalItem : MonoBehaviour
     {

@@ -9,7 +9,7 @@ namespace NTPackage.UI
     public class PopupManager : NTBehaviour
     {
         public float currentLvUI = 0;
-        public NTDictionary<PopupCode, PopupUI> PopupDic = new NTDictionary<PopupCode, PopupUI>();
+        public NTDictionary<PopupUI> PopupDic = new NTDictionary<PopupUI>();
 
         public static PopupManager instance;
         protected override void Awake()
@@ -17,7 +17,7 @@ namespace NTPackage.UI
             base.Awake();
             if (PopupManager.instance != null) Debug.LogWarning("Only 1 UIManager allow");
             PopupManager.instance = this;
-            this.PopupDic = new NTDictionary<PopupCode, PopupUI>();
+            this.PopupDic = new NTDictionary<PopupUI>();
         }
 
         public override void LoadComponents()
@@ -43,7 +43,7 @@ namespace NTPackage.UI
 
         public PopupUI GetPopupUIByCode(PopupCode popupCode)
         {
-            return this.PopupDic.Get(popupCode);
+            return this.PopupDic.Get(popupCode.ToString());
         }
 
         public void OnUI(PopupCode popupCode, object data = null)

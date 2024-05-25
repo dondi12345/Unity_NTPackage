@@ -2,14 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace NTPackage{
+namespace NTPackage.Functions{
     [System.Serializable]
     public class NTDictionary<T>{
         public Dictionary<string, T> Dictionary = new Dictionary<string, T>();
-        [SerializeField]
-        private List<string> Keys = new List<string>();
-        [SerializeField]
-        private List<T> Values = new List<T>();
+        // #if UNITY_EDITOR
+            [SerializeField]
+            private List<string> Keys = new List<string>();
+            [SerializeField]
+            private List<T> Values = new List<T>();
+        // #endif
 
         public void Clear(){
             this.Dictionary.Clear();
@@ -60,5 +62,4 @@ namespace NTPackage{
             }
         }
     } 
- 
- }
+}

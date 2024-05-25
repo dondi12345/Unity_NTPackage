@@ -2,20 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace NTPackage.Functions{
+namespace NTPackage.Functions
+{
     public class ObjectPoolingManager : NTBehaviour
     {
-        public NTDictionary<string,List<Transform>> ObjectNTDictionary = new NTDictionary<string,List<Transform>>();
+        public NTDictionary<List<Transform>> ObjectNTDictionary = new NTDictionary<List<Transform>>();
         public Transform Holder;
 
         public static ObjectPoolingManager instance;
         protected override void Awake()
         {
             base.Awake();
-            if (ObjectPoolingManager.instance != null){
-               Debug.LogWarning("Only 1 instance allow");
-               return;
-             }
+            if (ObjectPoolingManager.instance != null)
+            {
+                NTLog.LogWarning("Only 1 instance allow");
+                return;
+            }
             ObjectPoolingManager.instance = this;
         }
 
@@ -25,24 +27,27 @@ namespace NTPackage.Functions{
             this.LoadHolder();
         }
 
-        protected void LoadHolder(){
-            if(Holder != null) return;
+        protected void LoadHolder()
+        {
+            if (Holder != null) return;
             this.Holder = transform.Find("Holder");
-        } 
+        }
 
-        public virtual void PushChildObjectIntoPooling(Transform trans){
+        public virtual void PushChildObjectIntoPooling(Transform trans)
+        {
             List<Transform> listTrans = new List<Transform>();
             foreach (Transform item in trans)
             {
                 listTrans.Add(item);
             }
-            for (int i = listTrans.Count -1; i >=0; i--)
+            for (int i = listTrans.Count - 1; i >= 0; i--)
             {
                 this.PushObjectIntoPooling(listTrans[i]);
             }
         }
 
-        public void PushObjectIntoPooling(Transform trans){
+        public void PushObjectIntoPooling(Transform trans)
+        {
             trans.SetParent(this.Holder);
             try
             {
@@ -56,7 +61,8 @@ namespace NTPackage.Functions{
             }
         }
 
-        public Transform GetObjectFromPooling(string nameOb){
+        public Transform GetObjectFromPooling(string nameOb)
+        {
             try
             {
                 Transform transform = this.ObjectNTDictionary.Get(nameOb)[0];
@@ -67,14 +73,15 @@ namespace NTPackage.Functions{
             {
                 try
                 {
-                    Debug.LogError(this.ObjectNTDictionary.Get(nameOb).Count);
+                    NTLog.LogWarning(this.ObjectNTDictionary.Get(nameOb).Count.ToString());
                 }
                 catch (System.Exception)
-                {}
+                { }
                 return null;
             }
         }
-        public T GetObjectFromPooling<T>(string nameOb){
+        public T GetObjectFromPooling<T>(string nameOb)
+        {
             Transform trans;
             try
             {

@@ -7,11 +7,13 @@ using DG.Tweening;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using NTFunctions;
+using UnityEngine.UI;
 
 namespace NTPackage.UI
 {
-    public class NTButtonEffect : LoadBehaviour, IPointerDownHandler, IPointerUpHandler
+    public class NTButtonEffect : NTBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler, ISubmitHandler
     {
+        public bool AvailableClick = true;
         public Vector3 SizeUp = new Vector3(1.05f, 1.05f, 1.05f);
         public Vector3 SizeDown = new Vector3(0.95f, 0.95f, 0.95f);
         public Transform Main;
@@ -22,19 +24,11 @@ namespace NTPackage.UI
         public UnityEvent Onclick;
         public UnityEvent Onhold;
 
-        private bool IsClick = false;
-        private bool IsHold = false;
-
-        private Vector2 MouseDownPos;
-
         public Coroutine HoldCor;
-        private bool IsIn = false;
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            this.IsClick = true;
-            this.IsHold = false;
-            this.MouseDownPos = Input.mousePosition;
+            if(!this.AvailableClick) return;
             if (this.HoldCor != null) StopCoroutine(this.HoldCor);
             this.HoldCor = StartCoroutine(this.Holding());
             if (this.Main == null) return;
@@ -43,31 +37,18 @@ namespace NTPackage.UI
 
         IEnumerator Holding()
         {
-            this.IsHold = true;
             yield return new WaitForSeconds(0.5f);
-            if (this.IsClick && this.IsHold)
-            {
-                CheckIn();
-                this.IsClick = false;
-                this.IsHold = false;
-                if (this.IsIn) this.Onhold.Invoke();
-            }
+            this.Onhold.Invoke();
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            CheckIn();
+            if(!this.AvailableClick) return;
             if (this.HoldCor != null) StopCoroutine(this.HoldCor);
             if (this.Main == null) return;
             this.Main.DOScale(this.SizeUp, 0.1f).OnComplete(() =>
             {
                 this.Main.DOScale(new Vector3(1f, 1f, 1f), 0.05f);
-                if (this.IsClick)
-                {
-                    this.IsClick = false;
-                    this.IsHold = false;
-                    if (this.IsIn) this.Onclick.Invoke();
-                }
             });
         }
 
@@ -94,12 +75,15 @@ namespace NTPackage.UI
             return this.Light.gameObject.activeSelf;
         }
 
-        public void CheckIn()
+        public void OnPointerClick(PointerEventData eventData)
         {
-            Vector2 pos = Input.mousePosition;
-            if (Mathf.Abs(pos.x - this.MouseDownPos.x) > 1) { this.IsIn = false; return; }
-            if (Mathf.Abs(pos.y - this.MouseDownPos.y) > 1) { this.IsIn = false; return; }
-            this.IsIn = true;
+            if(!this.AvailableClick) return;
+            this.Onclick.Invoke();
+        }
+
+        public void OnSubmit(BaseEventData eventData)
+        {
+            // throw new NotImplementedException();
         }
     }
 }

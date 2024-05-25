@@ -1,12 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
-using NTFunctions;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace NTFunctions
+namespace NTPackage.Functions
 {
-    public class VerticalScroll : LoadBehaviour
+    public class VerticalScroll : NTBehaviour
     {
         public RectTransform Content;
 

@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace NTFunctions
+namespace NTPackage.Functions
 {
     public class TestVerticalIcon : VerticalItem
     {

@@ -56,7 +56,7 @@ namespace NTPackage.UI
         protected override void Start()
         {
             base.Start();
-            PopupManager.instance.PopupDic.Add(this.popupCode, this);
+            PopupManager.instance.PopupDic.Add(this.popupCode.ToString(), this);
         }
 
         public Action ActionOnUI;

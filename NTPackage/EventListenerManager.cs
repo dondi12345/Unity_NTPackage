@@ -2,31 +2,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using System.Linq;
 
 namespace NTPackage.EventDispatcher
 {
+    using System.Linq;
+    using Functions;
+    using NTFunctions;
+
     public enum EventCode{
-        ACC_LobbyUDP,
-        ACC_LobbyOut,
-        ACC_Update_PlayerData,
-        ACC_Update_MyPlayerData,
-        ACC_ReceiveEmotion,
-        FishKingdom_TorchUpdate,
-        FishKingdom_CardTeamUpdate,
-        FishKingdom_DoneLoad,
-        FishKingdom_ReciveChatCrossServer,
-        FishKingdom_ReciveChatServer,
-        FishKingdom_ReciveChatPrivate,
+        ReciveChatGlobal,
+        ReciveChatFriend,
+        ViewInforMobOn,
+        EndCombat,
+        ChangeNormalView,
+        ChangeRegionView,
+        OffAttackSound,
+        CompanionUpdate,
+        CompanionEquipUpdate,
+        UpdateMail,
     }
 
-    public class EventListenerManager : MonoBehaviour
+    public class EventListenerManager : NTBehaviour
     {
-        public NTDictionary<EventCode, NTDictionary<string, Action<object>>> ActionsDictionary = new NTDictionary<EventCode, NTDictionary<string, Action<object>>>();
+        public NTDictionary<NTDictionary<Action<object>>> ActionsDictionary = new NTDictionary<NTDictionary<Action<object>>>();
 
         public static EventListenerManager instance;
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             if (EventListenerManager.instance != null)
             {
                 Debug.LogWarning("Only 1 instance allow");
@@ -36,27 +39,40 @@ namespace NTPackage.EventDispatcher
         }
 
         public void PostEvent(EventCode eventCode,object data = null){
-            NTDictionary<string,Action<object>> actions = this.ActionsDictionary.Get(eventCode);
+            NTDictionary<Action<object>> actions = this.ActionsDictionary.Get(eventCode.ToString());
             if(actions == null || actions.Dictionary.Count == 0) return;
-            foreach (KeyValuePair<string, System.Action<object>> item in actions.Dictionary.ToList())
+            foreach (String item in actions.Dictionary.Keys.ToList())
             {
                 try
                 {
-                    item.Value.Invoke(data);
+                    actions.Dictionary[item].Invoke(data);
                 }
                 catch (System.Exception)
                 {
-                    actions.Remove(item.Key);
+                    actions.Remove(item);
                 }
+            }
+        }
+
+        public void PostEvent(EventCode eventCode, string key, object data = null){
+            NTDictionary<Action<object>> actions = this.ActionsDictionary.Get(eventCode.ToString());
+            if(actions == null || actions.Dictionary.Count == 0) return;
+            try
+            {
+                actions.Dictionary[key].Invoke(data);
+            }
+            catch (System.Exception)
+            {
+                actions.Remove(key);
             }
         }
 
         public void Register(EventCode eventCode, string key,Action<object> callback){
             
-            NTDictionary<string, Action<object>> actions = this.ActionsDictionary.Get(eventCode);
+            NTDictionary< Action<object>> actions = this.ActionsDictionary.Get(eventCode.ToString());
             if(actions == null){
-                actions = new NTDictionary<string, Action<object>>();
-                this.ActionsDictionary.Add(eventCode, actions);
+                actions = new NTDictionary<Action<object>>();
+                this.ActionsDictionary.Add(eventCode.ToString(), actions);
             }
             actions.Add(key, callback);
         }
